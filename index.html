@@ -1,1 +1,2112 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EasyPick &amp; Deliveries</title>
+  <script src="/_sdk/data_sdk.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
+    body {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #0c4a6e 0%, #075985 50%, #0369a1 100%);
+      min-height: 100%;
+      overflow-x: hidden;
+    }
+
+    html {
+      height: 100%;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      height: 100%;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      padding: 32px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 1px rgba(255, 255, 255, 0.1) inset;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #0891b2 0%, #06b6d4 50%, #f97316 100%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4), 0 0 1px rgba(255, 255, 255, 0.2) inset;
+    }
+
+    .card:hover::before {
+      opacity: 1;
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(30px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 24px;
+      padding: 32px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);
+      color: white;
+      padding: 16px 32px;
+      border-radius: 16px;
+      border: none;
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 10px 30px rgba(8, 145, 178, 0.4);
+      position: relative;
+      overflow: hidden;
+      letter-spacing: 0.3px;
+    }
+
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .btn-primary:hover::before {
+      left: 100%;
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #0e7490 0%, #0891b2 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 15px 40px rgba(8, 145, 178, 0.6);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-secondary {
+      background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
+      color: white;
+      padding: 16px 32px;
+      border-radius: 16px;
+      border: none;
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 10px 30px rgba(249, 115, 22, 0.4);
+      position: relative;
+      overflow: hidden;
+      letter-spacing: 0.3px;
+    }
+
+    .btn-secondary::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .btn-secondary:hover::before {
+      left: 100%;
+    }
+
+    .btn-secondary:hover {
+      background: linear-gradient(135deg, #ea580c 0%, #f97316 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 15px 40px rgba(249, 115, 22, 0.6);
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 16px 20px;
+      border: 2px solid rgba(148, 163, 184, 0.2);
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 500;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      background: rgba(255, 255, 255, 0.5);
+      color: #1e293b;
+    }
+
+    .input-field:focus {
+      outline: none;
+      border-color: #3b82f6;
+      background: white;
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1), 0 10px 30px rgba(59, 130, 246, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .input-field::placeholder {
+      color: #94a3b8;
+      font-weight: 400;
+    }
+
+    .delivery-option {
+      padding: 24px;
+      border: 2px solid rgba(148, 163, 184, 0.2);
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      text-align: center;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+      backdrop-filter: blur(10px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .delivery-option::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .delivery-option:hover {
+      border-color: #3b82f6;
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(139, 92, 246, 0.1) 100%);
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 15px 40px rgba(59, 130, 246, 0.3);
+    }
+
+    .delivery-option:hover::before {
+      opacity: 1;
+    }
+
+    .delivery-option.selected {
+      border-color: #3b82f6;
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(139, 92, 246, 0.15) 100%);
+      transform: scale(1.05);
+      box-shadow: 0 20px 50px rgba(59, 130, 246, 0.4);
+    }
+
+    .delivery-option.selected::before {
+      opacity: 1;
+    }
+
+    .class-option {
+      padding: 24px;
+      border: 2px solid rgba(148, 163, 184, 0.2);
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+      backdrop-filter: blur(10px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .class-option::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(251, 191, 36, 0.1) 100%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .class-option:hover {
+      border-color: #f59e0b;
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(251, 191, 36, 0.1) 100%);
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 15px 40px rgba(245, 158, 11, 0.3);
+    }
+
+    .class-option:hover::before {
+      opacity: 1;
+    }
+
+    .class-option.selected {
+      border-color: #f59e0b;
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(251, 191, 36, 0.15) 100%);
+      transform: scale(1.05);
+      box-shadow: 0 20px 50px rgba(245, 158, 11, 0.4);
+    }
+
+    .class-option.selected::before {
+      opacity: 1;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .status-pending {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .status-transit {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+
+    .status-delivered {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .map-container {
+      width: 100%;
+      height: 400px;
+      background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+      border-radius: 24px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15) inset, 0 10px 40px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .map-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        repeating-linear-gradient(0deg, rgba(59, 130, 246, 0.03) 0px, transparent 1px, transparent 20px),
+        repeating-linear-gradient(90deg, rgba(59, 130, 246, 0.03) 0px, transparent 1px, transparent 20px);
+      pointer-events: none;
+    }
+
+    .route-line {
+      position: absolute;
+      top: 50%;
+      left: 10%;
+      right: 10%;
+      height: 6px;
+      background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #10b981 100%);
+      transform: translateY(-50%);
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
+    }
+
+    .route-line::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 50%;
+      background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.6) 50%, transparent 100%);
+      animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { left: -50%; }
+      100% { left: 100%; }
+    }
+
+    .location-marker {
+      position: absolute;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+      border: 4px solid white;
+    }
+
+    .marker-pickup {
+      left: 10%;
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    }
+
+    .marker-current {
+      left: 50%;
+      background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+      animation: pulse 2s infinite;
+    }
+
+    .marker-dropoff {
+      left: 90%;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        transform: translate(-50%, -50%) scale(1);
+        box-shadow: 0 8px 24px rgba(139, 92, 246, 0.4), 0 0 0 0 rgba(139, 92, 246, 0.7);
+      }
+      50% {
+        transform: translate(-50%, -50%) scale(1.15);
+        box-shadow: 0 12px 32px rgba(139, 92, 246, 0.6), 0 0 0 12px rgba(139, 92, 246, 0);
+      }
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+      border-bottom: 2px solid #e5e7eb;
+      flex-wrap: wrap;
+    }
+
+    .nav-tab {
+      padding: 12px 24px;
+      background: none;
+      border: none;
+      color: #6b7280;
+      font-weight: 600;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+    }
+
+    .nav-tab:hover {
+      color: #3b82f6;
+    }
+
+    .nav-tab.active {
+      color: #3b82f6;
+      border-bottom-color: #3b82f6;
+    }
+
+    .screen {
+      display: none;
+    }
+
+    .screen.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .icon-circle {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      font-size: 32px;
+    }
+
+    .loading-spinner {
+      border: 3px solid #e5e7eb;
+      border-top-color: #3b82f6;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .transaction-item {
+      border-bottom: 1px solid #e5e7eb;
+      padding: 16px 0;
+    }
+
+    .transaction-item:last-child {
+      border-bottom: none;
+    }
+
+    .star {
+      font-size: 28px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-block;
+    }
+
+    .star:hover {
+      transform: scale(1.2);
+    }
+
+    .star.filled {
+      color: #fbbf24;
+    }
+
+    .star.empty {
+      color: #d1d5db;
+    }
+
+    .notification {
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      background: white;
+      padding: 20px 24px;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      z-index: 10000;
+      border-left: 4px solid #3b82f6;
+      animation: slideIn 0.3s ease;
+      max-width: 400px;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    .saved-address-item {
+      padding: 16px;
+      background: #f9fafb;
+      border-radius: 12px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+    }
+
+    .saved-address-item:hover {
+      background: #eff6ff;
+      border-color: #3b82f6;
+      transform: translateX(4px);
+    }
+
+    .promo-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      padding: 4px 12px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+ </head>
+ <body>
+  <div class="container"><!-- Login Screen -->
+   <div id="loginScreen" class="screen active">
+    <div style="max-width: 1000px; margin: 0 auto; padding-top: 40px;"><!-- Hero Section with Image -->
+     <div style="text-align: center; margin-bottom: 48px;">
+      <div style="position: relative; width: 100%; height: 450px; border-radius: 32px; overflow: hidden; margin-bottom: 32px; box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);"><img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=1600&amp;h=600&amp;fit=crop&amp;q=90" alt="Professional Delivery Service" style="width: 100%; height: 100%; object-fit: cover;">
+       <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, rgba(8, 145, 178, 0.92) 0%, rgba(14, 116, 144, 0.88) 50%, rgba(6, 182, 212, 0.85) 100%); display: flex; align-items: center; justify-content: center; flex-direction: column;">
+        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.08) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.06) 0%, transparent 50%);"></div>
+        <div style="position: relative; z-index: 1;">
+         <div style="display: inline-flex; align-items: center; justify-content: center; width: 120px; height: 120px; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(20px); border-radius: 30px; margin-bottom: 24px; border: 3px solid rgba(255, 255, 255, 0.3); box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);"><span style="font-size: 64px; filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3));">🚚</span>
+         </div>
+         <h1 id="heroTitle" style="color: white; font-size: 56px; font-weight: 900; margin-bottom: 16px; text-shadow: 0 6px 30px rgba(0, 0, 0, 0.4); letter-spacing: -1.5px; line-height: 1.1;">Your Delivery Partner</h1>
+         <p id="heroSubtitle" style="color: rgba(255, 255, 255, 0.98); font-size: 22px; font-weight: 600; text-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); letter-spacing: 0.3px; margin-bottom: 32px;">Fast, Secure &amp; Reliable Logistics Solutions</p>
+         <div style="display: inline-flex; gap: 32px; margin-top: 16px;">
+          <div style="text-align: center;">
+           <div style="font-size: 32px; font-weight: 900; color: white; text-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);">
+            24/7
+           </div>
+           <div style="font-size: 13px; color: rgba(255, 255, 255, 0.9); font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">
+            Available
+           </div>
+          </div>
+          <div style="width: 2px; background: rgba(255, 255, 255, 0.3);"></div>
+          <div style="text-align: center;">
+           <div style="font-size: 32px; font-weight: 900; color: white; text-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);">
+            50K+
+           </div>
+           <div style="font-size: 13px; color: rgba(255, 255, 255, 0.9); font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">
+            Deliveries
+           </div>
+          </div>
+          <div style="width: 2px; background: rgba(255, 255, 255, 0.3);"></div>
+          <div style="text-align: center;">
+           <div style="font-size: 32px; font-weight: 900; color: white; text-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);">
+            4.9★
+           </div>
+           <div style="font-size: 13px; color: rgba(255, 255, 255, 0.9); font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">
+            Rating
+           </div>
+          </div>
+         </div>
+        </div>
+       </div>
+      </div>
+     </div>
+     <div style="max-width: 500px; margin: 0 auto;">
+      <div class="card">
+       <h2 style="text-align: center; color: #1e293b; font-size: 28px; margin-bottom: 8px; font-weight: 700;">Welcome Back</h2>
+       <p id="tagline" style="text-align: center; color: #64748b; margin-bottom: 32px; font-size: 15px;">Sign in to manage your deliveries</p>
+       <div style="margin-bottom: 16px;"><label style="display: block; margin-bottom: 8px; color: #374151; font-weight: 600;">Full Name</label> <input type="text" id="loginName" class="input-field" placeholder="Enter your full name">
+       </div>
+       <div style="margin-bottom: 24px;"><label style="display: block; margin-bottom: 8px; color: #374151; font-weight: 600;">Email Address</label> <input type="email" id="loginEmail" class="input-field" placeholder="Enter your email">
+       </div><button id="loginBtn" class="btn-primary" style="width: 100%; font-size: 16px;"> Continue to Dashboard </button>
+      </div>
+     </div>
+    </div>
+   </div><!-- Main Dashboard -->
+   <div id="dashboardScreen" class="screen"><!-- Header -->
+    <div class="glass-card" style="margin-bottom: 32px; display: flex; justify-content: space-between; align-items: center; position: relative; overflow: hidden;">
+     <div style="position: absolute; top: 0; right: 0; width: 300px; height: 300px; background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 70%); pointer-events: none;"></div>
+     <div style="position: relative; z-index: 1;">
+      <h2 id="dashboardTitle" style="color: white; font-size: 28px; font-weight: 800; margin-bottom: 6px; letter-spacing: -0.5px;">EasyPick &amp; Deliveries</h2>
+      <p id="welcomeMessage" style="color: rgba(255, 255, 255, 0.8); font-size: 15px; font-weight: 500;">Welcome back!</p>
+     </div>
+     <div style="display: flex; gap: 16px; align-items: center; position: relative; z-index: 1;">
+      <div style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); padding: 20px 28px; border-radius: 20px; text-align: right; border: 1px solid rgba(255, 255, 255, 0.15);">
+       <p style="color: rgba(255, 255, 255, 0.7); font-size: 12px; margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Wallet Balance</p>
+       <p id="walletBalance" style="color: #fcd34d; font-size: 28px; font-weight: 800; text-shadow: 0 2px 10px rgba(252, 211, 77, 0.4);">$0.00</p>
+      </div><button id="notificationsBtn" style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); padding: 14px; border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.15); color: white; cursor: pointer; font-size: 20px; position: relative;"> 🔔 <span id="notificationBadge" style="display: none; position: absolute; top: -4px; right: -4px; background: #ef4444; color: white; width: 20px; height: 20px; border-radius: 50%; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center;">0</span> </button> <button id="profileBtn" class="btn-secondary" style="padding: 14px 24px;"> 👤 Profile </button>
+     </div>
+    </div>
+    <div class="nav-tabs"><button class="nav-tab active" data-tab="booking">📦 New Booking</button> <button class="nav-tab" data-tab="tracking">📍 Track Delivery</button> <button class="nav-tab" data-tab="history">📋 My Bookings</button> <button class="nav-tab" data-tab="addresses">📌 Saved Addresses</button> <button class="nav-tab" data-tab="promos">🎁 Promo Codes</button>
+    </div><!-- Booking Tab -->
+    <div id="bookingTab" class="tab-content">
+     <div class="card" style="margin-bottom: 24px;">
+      <h3 style="color: #1e40af; font-size: 20px; font-weight: 700; margin-bottom: 24px;">Create New Booking</h3>
+      <div style="margin-bottom: 32px;"><label style="display: block; margin-bottom: 16px; color: #1e293b; font-weight: 700; font-size: 16px;">Select Delivery Type</label>
+       <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+        <div class="delivery-option" data-type="person" style="position: relative;">
+         <div style="width: 80px; height: 80px; margin: 0 auto 12px; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);"><img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=200&amp;h=200&amp;fit=crop&amp;q=80" alt="Person" style="width: 100%; height: 100%; object-fit: cover;">
+         </div>
+         <div style="font-weight: 700; color: #1e293b; font-size: 16px; position: relative; z-index: 1;">
+          Person
+         </div>
+         <div style="color: #64748b; font-size: 13px; margin-top: 4px; position: relative; z-index: 1;">
+          Passenger transport
+         </div>
+        </div>
+        <div class="delivery-option" data-type="goods" style="position: relative;">
+         <div style="width: 80px; height: 80px; margin: 0 auto 12px; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);"><img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=200&amp;h=200&amp;fit=crop&amp;q=80" alt="Goods" style="width: 100%; height: 100%; object-fit: cover;">
+         </div>
+         <div style="font-weight: 700; color: #1e293b; font-size: 16px; position: relative; z-index: 1;">
+          Goods
+         </div>
+         <div style="color: #64748b; font-size: 13px; margin-top: 4px; position: relative; z-index: 1;">
+          Package delivery
+         </div>
+        </div>
+        <div class="delivery-option" data-type="gift" style="position: relative;">
+         <div style="width: 80px; height: 80px; margin: 0 auto 12px; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);"><img src="https://images.unsplash.com/photo-1513885535751-8b9238bd345a?w=200&amp;h=200&amp;fit=crop&amp;q=80" alt="Gift" style="width: 100%; height: 100%; object-fit: cover;">
+         </div>
+         <div style="font-weight: 700; color: #1e293b; font-size: 16px; position: relative; z-index: 1;">
+          Gift
+         </div>
+         <div style="color: #64748b; font-size: 13px; margin-top: 4px; position: relative; z-index: 1;">
+          Special delivery
+         </div>
+        </div>
+       </div>
+      </div>
+      <div style="margin-bottom: 32px;"><label style="display: block; margin-bottom: 16px; color: #1e293b; font-weight: 700; font-size: 16px;">Choose Service Class</label>
+       <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+        <div class="class-option" data-class="economy" style="position: relative;">
+         <div style="width: 100px; height: 100px; margin: 0 auto 12px; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); border: 3px solid #10b981;"><img src="https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=200&amp;h=200&amp;fit=crop&amp;q=80" alt="Economy" style="width: 100%; height: 100%; object-fit: cover;">
+         </div>
+         <div style="font-weight: 700; color: #1e293b; margin-bottom: 6px; font-size: 18px; position: relative; z-index: 1;">
+          Economy
+         </div>
+         <div style="color: #10b981; font-weight: 800; font-size: 24px; margin-bottom: 4px; position: relative; z-index: 1;">
+          $10
+         </div>
+         <div style="color: #64748b; font-size: 13px; position: relative; z-index: 1;">
+          Standard delivery
+         </div>
+        </div>
+        <div class="class-option" data-class="executive" style="position: relative;">
+         <div style="width: 100px; height: 100px; margin: 0 auto 12px; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); border: 3px solid #3b82f6;"><img src="https://images.unsplash.com/photo-1563720360172-67b8f3dce741?w=200&amp;h=200&amp;fit=crop&amp;q=80" alt="Executive" style="width: 100%; height: 100%; object-fit: cover;">
+         </div>
+         <div style="font-weight: 700; color: #1e293b; margin-bottom: 6px; font-size: 18px; position: relative; z-index: 1;">
+          Executive
+         </div>
+         <div style="color: #3b82f6; font-weight: 800; font-size: 24px; margin-bottom: 4px; position: relative; z-index: 1;">
+          $25
+         </div>
+         <div style="color: #64748b; font-size: 13px; position: relative; z-index: 1;">
+          Priority service
+         </div>
+        </div>
+        <div class="class-option" data-class="vvip" style="position: relative;">
+         <div style="width: 100px; height: 100px; margin: 0 auto 12px; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); border: 3px solid #f59e0b;"><img src="https://images.unsplash.com/photo-1555215695-3004980ad54e?w=200&amp;h=200&amp;fit=crop&amp;q=80" alt="VVIP" style="width: 100%; height: 100%; object-fit: cover;">
+         </div>
+         <div style="font-weight: 700; color: #1e293b; margin-bottom: 6px; font-size: 18px; position: relative; z-index: 1;">
+          VVIP
+         </div>
+         <div style="color: #f59e0b; font-weight: 800; font-size: 24px; margin-bottom: 4px; position: relative; z-index: 1;">
+          $50
+         </div>
+         <div style="color: #64748b; font-size: 13px; position: relative; z-index: 1;">
+          Premium express
+         </div>
+        </div>
+       </div>
+      </div><!-- Package Details -->
+      <div style="background: #f9fafb; padding: 24px; border-radius: 16px; margin-bottom: 24px;">
+       <h4 style="color: #1e293b; font-weight: 700; margin-bottom: 16px;">📦 Package Details (Optional)</h4>
+       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div><label style="display: block; margin-bottom: 8px; color: #374151; font-weight: 600;">Weight</label> <select id="packageWeight" class="input-field"> <option value="">Select weight...</option> <option value="0-5kg">0-5 kg (Small)</option> <option value="5-15kg">5-15 kg (Medium)</option> <option value="15-30kg">15-30 kg (Large)</option> <option value="30kg+">30+ kg (Extra Large)</option> </select>
+        </div>
+        <div><label style="display: block; margin-bottom: 8px; color: #374151; font-weight: 600;">Size</label> <select id="packageSize" class="input-field"> <option value="">Select size...</option> <option value="envelope">Envelope</option> <option value="small-box">Small Box</option> <option value="medium-box">Medium Box</option> <option value="large-box">Large Box</option> </select>
+        </div>
+       </div>
+       <div style="margin-top: 16px;"><label style="display: flex; align-items: center; gap: 8px; cursor: pointer;"> <input type="checkbox" id="addInsurance" style="width: 20px; height: 20px; cursor: pointer;"> <span style="color: #374151; font-weight: 600;">🛡️ Add Insurance (+$5)</span> </label>
+       </div>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+       <div><label id="pickupLabelText" style="display: block; margin-bottom: 8px; color: #374151; font-weight: 600;">Pickup Location</label> <input type="text" id="pickupAddress" class="input-field" placeholder="Enter pickup address"> <button id="useSavedPickupBtn" style="margin-top: 8px; font-size: 12px; color: #3b82f6; background: none; border: none; cursor: pointer; font-weight: 600;">📌 Use Saved Address</button>
+       </div>
+       <div><label style="display: block; margin-bottom: 8px; color: #374151; font-weight: 600;">Pickup Contact</label> <input type="text" id="pickupContact" class="input-field" placeholder="Phone number">
+       </div>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+       <div><label id="dropoffLabelText" style="display: block; margin-bottom: 8px; color: #374151; font-weight: 600;">Drop-off Location</label> <input type="text" id="dropoffAddress" class="input-field" placeholder="Enter drop-off address"> <button id="useSavedDropoffBtn" style="margin-top: 8px; font-size: 12px; color: #3b82f6; background: none; border: none; cursor: pointer; font-weight: 600;">📌 Use Saved Address</button>
+       </div>
+       <div><label style="display: block; margin-bottom: 8px; color: #374151; font-weight: 600;">Drop-off Contact</label> <input type="text" id="dropoffContact" class="input-field" placeholder="Phone number">
+       </div>
+      </div><!-- Schedule Delivery -->
+      <div style="background: #f0f9ff; padding: 20px; border-radius: 16px; margin-bottom: 16px;"><label style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; cursor: pointer;"> <input type="checkbox" id="scheduleDelivery" style="width: 20px; height: 20px; cursor: pointer;"> <span style="color: #1e293b; font-weight: 700;">📅 Schedule for Later</span> </label>
+       <div id="scheduleFields" style="display: none;"><input type="datetime-local" id="scheduledDate" class="input-field">
+       </div>
+      </div><!-- Promo Code -->
+      <div style="background: #fef3c7; padding: 20px; border-radius: 16px; margin-bottom: 24px; border: 2px dashed #f59e0b;"><label style="display: block; margin-bottom: 12px; color: #92400e; font-weight: 700; display: flex; align-items: center; gap: 8px;"> <span style="font-size: 20px;">🎁</span> <span>Have a Promo Code?</span> </label>
+       <div style="display: flex; gap: 12px;"><input type="text" id="promoCode" class="input-field" placeholder="Enter promo code" style="flex: 1; background: white;"> <button id="applyPromoBtn" class="btn-secondary" style="padding: 14px 24px;">Apply</button>
+       </div>
+       <div id="promoSuccess" style="display: none; margin-top: 12px; color: #065f46; font-weight: 600; background: #d1fae5; padding: 12px; border-radius: 8px;">
+        ✓ Promo code applied!
+       </div>
+      </div><button id="confirmBookingBtn" class="btn-primary" style="width: 100%; font-size: 16px;"> Confirm Booking </button>
+     </div>
+    </div><!-- Tracking Tab -->
+    <div id="trackingTab" class="tab-content" style="display: none;">
+     <div class="card">
+      <h3 style="color: #1e40af; font-size: 20px; font-weight: 700; margin-bottom: 24px;">Track Your Delivery</h3>
+      <div id="trackingEmpty" style="text-align: center; padding: 40px 0; color: #6b7280;">
+       <div style="font-size: 64px; margin-bottom: 16px;">
+        📍
+       </div>
+       <p>No active deliveries to track</p>
+      </div>
+      <div id="trackingContent" style="display: none;">
+       <div style="margin-bottom: 24px;"><label style="display: block; margin-bottom: 12px; color: #374151; font-weight: 600;">Select Booking to Track</label> <select id="trackingSelect" class="input-field"> <option value="">Choose a booking...</option> </select>
+       </div>
+       <div id="trackingDetails" style="display: none;">
+        <div style="background: #f9fafb; padding: 16px; border-radius: 12px; margin-bottom: 24px;">
+         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;"><span style="font-weight: 600; color: #374151;">Ticket #<span id="trackTicketNumber"></span></span> <span id="trackStatus" class="status-badge"></span>
+         </div>
+         <div style="color: #6b7280; font-size: 14px;">
+          <div style="margin-bottom: 4px;">
+           📍 From: <span id="trackPickup"></span>
+          </div>
+          <div>
+           🎯 To: <span id="trackDropoff"></span>
+          </div>
+         </div>
+         <div id="trackDriverInfo" style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #e5e7eb; display: none;">
+          <div style="font-weight: 600; color: #1e293b; margin-bottom: 4px;">
+           🚗 Driver Assigned
+          </div>
+          <div style="color: #374151;">
+           Name: <span id="trackDriverName"></span>
+          </div>
+          <div style="color: #374151;">
+           Contact: <span id="trackDriverPhone"></span>
+          </div>
+         </div>
+        </div>
+        <div class="map-container">
+         <div class="route-line"></div>
+         <div class="location-marker marker-pickup">
+          ����
+         </div>
+         <div class="location-marker marker-current">
+          🚚
+         </div>
+         <div class="location-marker marker-dropoff">
+          🎯
+         </div>
+        </div>
+        <div style="margin-top: 24px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+         <div style="text-align: center; padding: 16px; background: #fef3c7; border-radius: 12px;">
+          <div style="font-size: 24px; margin-bottom: 8px;">
+           ⏳
+          </div>
+          <div style="font-size: 12px; color: #92400e; font-weight: 600;">
+           PENDING
+          </div>
+         </div>
+         <div style="text-align: center; padding: 16px; background: #dbeafe; border-radius: 12px;">
+          <div style="font-size: 24px; margin-bottom: 8px;">
+           🚚
+          </div>
+          <div style="font-size: 12px; color: #1e40af; font-weight: 600;">
+           IN TRANSIT
+          </div>
+         </div>
+         <div style="text-align: center; padding: 16px; background: #d1fae5; border-radius: 12px;">
+          <div style="font-size: 24px; margin-bottom: 8px;">
+           ✅
+          </div>
+          <div style="font-size: 12px; color: #065f46; font-weight: 600;">
+           DELIVERED
+          </div>
+         </div>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div><!-- History Tab -->
+    <div id="historyTab" class="tab-content" style="display: none;">
+     <div class="card">
+      <h3 style="color: #1e40af; font-size: 20px; font-weight: 700; margin-bottom: 24px;">My Bookings</h3>
+      <div id="historyEmpty" style="text-align: center; padding: 40px 0; color: #6b7280;">
+       <div style="font-size: 64px; margin-bottom: 16px;">
+        📦
+       </div>
+       <p>No bookings yet. Create your first booking!</p>
+      </div>
+      <div id="historyList"></div>
+     </div>
+    </div><!-- Saved Addresses Tab -->
+    <div id="addressesTab" class="tab-content" style="display: none;">
+     <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+       <h3 style="color: #1e40af; font-size: 20px; font-weight: 700;">Saved Addresses</h3><button id="addAddressBtn" class="btn-primary">+ Add Address</button>
+      </div>
+      <div id="addressEmpty" style="text-align: center; padding: 40px 0; color: #6b7280;">
+       <div style="font-size: 64px; margin-bottom: 16px;">
+        📌
+       </div>
+       <p>No saved addresses yet. Add your frequently used locations!</p>
+      </div>
+      <div id="addressList"></div>
+     </div>
+    </div><!-- Promo Codes Tab -->
+    <div id="promosTab" class="tab-content" style="display: none;">
+     <div class="card">
+      <h3 style="color: #1e40af; font-size: 20px; font-weight: 700; margin-bottom: 24px;">Available Promo Codes</h3>
+      <div style="display: grid; gap: 16px;">
+       <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 24px; border-radius: 20px; color: white; position: relative; overflow: hidden;">
+        <div style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(255, 255, 255, 0.1); border-radius: 50%;"></div>
+        <div style="position: relative; z-index: 1;">
+         <div style="font-size: 24px; margin-bottom: 8px;">
+          🎉
+         </div>
+         <div style="font-weight: 800; font-size: 24px; margin-bottom: 8px; letter-spacing: 2px;">
+          FIRST20
+         </div>
+         <div style="opacity: 0.9; margin-bottom: 12px;">
+          20% off your first delivery
+         </div><button onclick="copyPromo('FIRST20')" style="background: white; color: #10b981; padding: 10px 20px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer;">Copy Code</button>
+        </div>
+       </div>
+       <div style="background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%); padding: 24px; border-radius: 20px; color: white; position: relative; overflow: hidden;">
+        <div style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(255, 255, 255, 0.1); border-radius: 50%;"></div>
+        <div style="position: relative; z-index: 1;">
+         <div style="font-size: 24px; margin-bottom: 8px;">
+          💰
+         </div>
+         <div style="font-weight: 800; font-size: 24px; margin-bottom: 8px; letter-spacing: 2px;">
+          SAVE10
+         </div>
+         <div style="opacity: 0.9; margin-bottom: 12px;">
+          $10 off orders over $30
+         </div><button onclick="copyPromo('SAVE10')" style="background: white; color: #0891b2; padding: 10px 20px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer;">Copy Code</button>
+        </div>
+       </div>
+       <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 24px; border-radius: 20px; color: white; position: relative; overflow: hidden;">
+        <div style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(255, 255, 255, 0.1); border-radius: 50%;"></div>
+        <div style="position: relative; z-index: 1;">
+         <div style="font-size: 24px; margin-bottom: 8px;">
+          🚀
+         </div>
+         <div style="font-weight: 800; font-size: 24px; margin-bottom: 8px; letter-spacing: 2px;">
+          FREESHIP
+         </div>
+         <div style="opacity: 0.9; margin-bottom: 12px;">
+          Free standard shipping
+         </div><button onclick="copyPromo('FREESHIP')" style="background: white; color: #f59e0b; padding: 10px 20px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer;">Copy Code</button>
+        </div>
+       </div>
+       <div style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); padding: 24px; border-radius: 20px; color: white; position: relative; overflow: hidden;">
+        <div style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(255, 255, 255, 0.1); border-radius: 50%;"></div>
+        <div style="position: relative; z-index: 1;">
+         <div style="font-size: 24px; margin-bottom: 8px;">
+          👥
+         </div>
+         <div style="font-weight: 800; font-size: 24px; margin-bottom: 8px; letter-spacing: 2px;">
+          REFER15
+         </div>
+         <div style="opacity: 0.9; margin-bottom: 12px;">
+          15% off when you refer a friend
+         </div><button onclick="copyPromo('REFER15')" style="background: white; color: #8b5cf6; padding: 10px 20px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer;">Copy Code</button>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div><!-- E-Ticket Screen -->
+   <div id="ticketScreen" class="screen">
+    <div style="max-width: 600px; margin: 0 auto; padding-top: 40px;">
+     <div class="card">
+      <div style="text-align: center; margin-bottom: 24px;">
+       <div class="icon-circle" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+        ✓
+       </div>
+       <h2 style="color: #10b981; font-size: 28px; font-weight: 700; margin-bottom: 8px;">Booking Confirmed!</h2>
+       <p style="color: #6b7280;">Your E-Ticket has been generated</p>
+      </div>
+      <div style="background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%); padding: 32px; border-radius: 24px; margin-bottom: 24px; border: 3px solid #3b82f6; box-shadow: 0 20px 60px rgba(59, 130, 246, 0.2); position: relative; overflow: hidden;">
+       <div style="position: absolute; top: -100px; right: -100px; width: 300px; height: 300px; background: radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, transparent 70%);"></div>
+       <div style="position: absolute; bottom: -80px; left: -80px; width: 250px; height: 250px; background: radial-gradient(circle, rgba(139, 92, 246, 0.06) 0%, transparent 70%);"></div>
+       <div style="text-align: center; margin-bottom: 28px; position: relative; z-index: 1;">
+        <div style="display: inline-flex; align-items: center; justify-content: center; width: 100px; height: 100px; background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); border-radius: 24px; margin-bottom: 16px; box-shadow: 0 12px 40px rgba(59, 130, 246, 0.4);"><span style="font-size: 56px; filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));">🎫</span>
+        </div>
+        <div style="font-size: 32px; font-weight: 800; color: #1e293b; margin-bottom: 8px;">
+         E-TICKET
+        </div>
+        <div style="display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); color: white; padding: 12px 32px; border-radius: 16px; font-size: 20px; font-weight: 800; letter-spacing: 1px; box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);">
+         #<span id="ticketNumber"></span>
+        </div>
+       </div>
+       <div style="background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); padding: 24px; border-radius: 20px; margin-bottom: 20px; border: 2px solid rgba(59, 130, 246, 0.1); position: relative; z-index: 1;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+         <div>
+          <div style="color: #64748b; font-size: 13px; margin-bottom: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+           Delivery Type
+          </div>
+          <div id="ticketType" style="color: #1e293b; font-weight: 800; font-size: 18px;"></div>
+         </div>
+         <div>
+          <div style="color: #64748b; font-size: 13px; margin-bottom: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+           Service Class
+          </div>
+          <div id="ticketClass" style="color: #1e293b; font-weight: 800; font-size: 18px;"></div>
+         </div>
+        </div>
+       </div>
+       <div style="background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); padding: 24px; border-radius: 20px; margin-bottom: 20px; border: 2px solid rgba(59, 130, 246, 0.1); position: relative; z-index: 1;">
+        <div style="margin-bottom: 20px;">
+         <div style="display: flex; align-items: center; gap: 8px; color: #64748b; font-size: 13px; margin-bottom: 8px; font-weight: 600;"><span style="font-size: 18px;">📍</span> <span style="text-transform: uppercase; letter-spacing: 0.5px;">Pickup Location</span>
+         </div>
+         <div id="ticketPickup" style="color: #1e293b; font-weight: 700; font-size: 16px; margin-bottom: 4px;"></div>
+         <div id="ticketPickupContact" style="color: #64748b; font-size: 15px; font-weight: 500;"></div>
+        </div>
+        <div style="width: 100%; height: 2px; background: linear-gradient(90deg, #3b82f6 0%, transparent 100%); margin-bottom: 20px; opacity: 0.2;"></div>
+        <div>
+         <div style="display: flex; align-items: center; gap: 8px; color: #64748b; font-size: 13px; margin-bottom: 8px; font-weight: 600;"><span style="font-size: 18px;">🎯</span> <span style="text-transform: uppercase; letter-spacing: 0.5px;">Drop-off Location</span>
+         </div>
+         <div id="ticketDropoff" style="color: #1e293b; font-weight: 700; font-size: 16px; margin-bottom: 4px;"></div>
+         <div id="ticketDropoffContact" style="color: #64748b; font-size: 15px; font-weight: 500;"></div>
+        </div>
+       </div>
+       <div style="background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); padding: 24px; border-radius: 20px; border: 2px solid rgba(59, 130, 246, 0.1); position: relative; z-index: 1;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+         <div>
+          <div style="color: #64748b; font-size: 13px; margin-bottom: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+           Booking Date
+          </div>
+          <div id="ticketDate" style="color: #1e293b; font-weight: 700; font-size: 16px;"></div>
+         </div>
+         <div style="text-align: right;">
+          <div style="color: #64748b; font-size: 13px; margin-bottom: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+           Amount Paid
+          </div>
+          <div id="ticketAmount" style="color: #10b981; font-weight: 800; font-size: 28px; text-shadow: 0 2px 10px rgba(16, 185, 129, 0.2);"></div>
+         </div>
+        </div>
+        <div id="ticketDiscount" style="display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid #e5e7eb;">
+         <div style="display: flex; justify-content: space-between; align-items: center;"><span style="color: #64748b; font-size: 14px;">Discount Applied:</span> <span style="color: #10b981; font-weight: 700;">-$<span id="ticketDiscountAmount"></span></span>
+         </div>
+        </div>
+       </div>
+      </div><button id="backToDashboardBtn" class="btn-primary" style="width: 100%; margin-bottom: 12px;"> Back to Dashboard </button> <button id="trackNowBtn" class="btn-secondary" style="width: 100%;"> Track This Delivery </button>
+     </div>
+    </div>
+   </div><!-- Profile Screen -->
+   <div id="profileScreen" class="screen">
+    <div style="max-width: 900px; margin: 0 auto; padding-top: 40px;">
+     <div class="card" style="margin-bottom: 24px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+       <h2 style="color: #1e40af; font-size: 24px; font-weight: 700;">My Profile</h2><button id="backFromProfileBtn" class="btn-secondary">← Back</button>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 32px;">
+       <div style="text-align: center;">
+        <div style="width: 160px; height: 160px; margin: 0 auto 20px; border-radius: 50%; overflow: hidden; border: 6px solid #e0f2fe; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15); position: relative;"><img src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=300&amp;h=300&amp;fit=crop&amp;q=80" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
+         <div style="position: absolute; bottom: 0; right: 0; width: 48px; height: 48px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 50%; border: 4px solid white; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);">
+          ✓
+         </div>
+        </div>
+        <h3 id="profileName" style="color: #1e293b; font-size: 24px; font-weight: 800; margin-bottom: 4px;"></h3>
+        <p id="profileEmail" style="color: #64748b; font-size: 15px; font-weight: 500;"></p>
+       </div>
+       <div>
+        <div style="background: linear-gradient(135deg, #0891b2 0%, #06b6d4 50%, #14b8a6 100%); padding: 32px; border-radius: 24px; color: white; margin-bottom: 24px; box-shadow: 0 20px 60px rgba(8, 145, 178, 0.5); position: relative; overflow: hidden;">
+         <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);"></div>
+         <div style="position: absolute; bottom: -30px; left: -30px; width: 150px; height: 150px; background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);"></div>
+         <div style="position: relative; z-index: 1;">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;"><span style="font-size: 24px;">💳</span> <span style="font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9;">Wallet Balance</span>
+          </div>
+          <div id="profileWallet" style="font-size: 48px; font-weight: 800; margin-bottom: 20px; text-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);">
+           $0.00
+          </div><button id="addFundsBtn" style="background: white; color: #0891b2; padding: 14px 28px; border-radius: 14px; border: none; font-weight: 700; cursor: pointer; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); transition: all 0.3s ease; font-size: 15px;"> 💰 Add Funds </button>
+         </div>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+         <div style="background: linear-gradient(135deg, rgba(8, 145, 178, 0.15) 0%, rgba(6, 182, 212, 0.08) 100%); backdrop-filter: blur(10px); padding: 24px; border-radius: 20px; text-align: center; border: 2px solid rgba(8, 145, 178, 0.3); transition: all 0.3s ease;">
+          <div style="font-size: 36px; font-weight: 800; color: #0891b2; margin-bottom: 8px;" id="totalBookings">
+           0
+          </div>
+          <div style="font-size: 13px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+           Total
+          </div>
+         </div>
+         <div style="background: linear-gradient(135deg, rgba(249, 115, 22, 0.15) 0%, rgba(251, 146, 60, 0.08) 100%); backdrop-filter: blur(10px); padding: 24px; border-radius: 20px; text-align: center; border: 2px solid rgba(249, 115, 22, 0.3); transition: all 0.3s ease;">
+          <div style="font-size: 36px; font-weight: 800; color: #f97316; margin-bottom: 8px;" id="activeBookings">
+           0
+          </div>
+          <div style="font-size: 13px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+           Active
+          </div>
+         </div>
+         <div style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.08) 100%); backdrop-filter: blur(10px); padding: 24px; border-radius: 20px; text-align: center; border: 2px solid rgba(16, 185, 129, 0.3); transition: all 0.3s ease;">
+          <div style="font-size: 36px; font-weight: 800; color: #10b981; margin-bottom: 8px;" id="completedBookings">
+           0
+          </div>
+          <div style="font-size: 13px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+           Completed
+          </div>
+         </div>
+        </div>
+       </div>
+      </div>
+     </div>
+     <div class="card">
+      <h3 style="color: #1e40af; font-size: 20px; font-weight: 700; margin-bottom: 24px;">Transaction History</h3>
+      <div id="transactionEmpty" style="text-align: center; padding: 40px 0; color: #6b7280;">
+       <div style="font-size: 64px; margin-bottom: 16px;">
+        💳
+       </div>
+       <p>No transactions yet</p>
+      </div>
+      <div id="transactionList"></div>
+     </div>
+    </div>
+   </div><!-- Add Funds Modal -->
+   <div id="addFundsModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px); z-index: 9999; align-items: center; justify-content: center;">
+    <div class="card" style="max-width: 500px; width: 90%; margin: 20px; position: relative;"><button id="closeAddFundsModal" style="position: absolute; top: 20px; right: 20px; background: #f3f4f6; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 20px; font-weight: 700; color: #6b7280; transition: all 0.3s ease;">×</button>
+     <h3 style="color: #1e40af; font-size: 24px; font-weight: 700; margin-bottom: 24px; text-align: center;">Add Funds to Wallet</h3>
+     <div style="margin-bottom: 24px;"><label style="display: block; margin-bottom: 12px; color: #374151; font-weight: 600;">Select Amount</label>
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px;"><button class="amount-option" data-amount="50" style="padding: 16px; border: 2px solid #e5e7eb; border-radius: 12px; background: white; cursor: pointer; font-weight: 700; font-size: 18px; color: #374151; transition: all 0.3s ease;">$50</button> <button class="amount-option" data-amount="100" style="padding: 16px; border: 2px solid #e5e7eb; border-radius: 12px; background: white; cursor: pointer; font-weight: 700; font-size: 18px; color: #374151; transition: all 0.3s ease;">$100</button> <button class="amount-option" data-amount="200" style="padding: 16px; border: 2px solid #e5e7eb; border-radius: 12px; background: white; cursor: pointer; font-weight: 700; font-size: 18px; color: #374151; transition: all 0.3s ease;">$200</button>
+      </div>
+      <div style="margin-bottom: 24px;"><label style="display: block; margin-bottom: 8px; color: #374151; font-weight: 600;">Custom Amount</label> <input type="number" id="customAmount" class="input-field" placeholder="Enter custom amount" min="10" max="10000">
+      </div>
+     </div>
+     <div style="background: #f0f9ff; padding: 20px; border-radius: 12px; margin-bottom: 24px; text-align: center;">
+      <div style="color: #64748b; font-size: 13px; margin-bottom: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+       Amount to Add
+      </div>
+      <div id="selectedAmount" style="color: #2563eb; font-size: 36px; font-weight: 800;">
+       $0
+      </div>
+     </div><button id="confirmAddFundsBtn" class="btn-primary" style="width: 100%; font-size: 16px;" disabled> Confirm &amp; Add Funds </button>
+    </div>
+   </div><!-- Rating Modal -->
+   <div id="ratingModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px); z-index: 9999; align-items: center; justify-content: center;">
+    <div class="card" style="max-width: 500px; width: 90%; margin: 20px; position: relative;"><button id="closeRatingModal" style="position: absolute; top: 20px; right: 20px; background: #f3f4f6; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 20px; font-weight: 700; color: #6b7280; transition: all 0.3s ease;">×</button>
+     <h3 style="color: #1e40af; font-size: 24px; font-weight: 700; margin-bottom: 8px; text-align: center;">Rate Your Experience</h3>
+     <p style="text-align: center; color: #6b7280; margin-bottom: 24px;">Ticket #<span id="ratingTicketNumber"></span></p>
+     <div style="text-align: center; margin-bottom: 24px;">
+      <div id="starRating" style="display: inline-flex; gap: 8px;"><span class="star empty" data-rating="1">⭐</span> <span class="star empty" data-rating="2">⭐</span> <span class="star empty" data-rating="3">⭐</span> <span class="star empty" data-rating="4">⭐</span> <span class="star empty" data-rating="5">⭐</span>
+      </div>
+      <div id="ratingText" style="margin-top: 12px; color: #6b7280; font-weight: 600;">
+       Select your rating
+      </div>
+     </div>
+     <div style="margin-bottom: 24px;"><label style="display: block; margin-bottom: 8px; color: #374151; font-weight: 600;">Your Review (Optional)</label> <textarea id="reviewText" class="input-field" placeholder="Share your experience..." style="min-height: 120px; resize: vertical;"></textarea>
+     </div><button id="submitRatingBtn" class="btn-primary" style="width: 100%; font-size: 16px;" disabled> Submit Rating </button>
+    </div>
+   </div><!-- Add Address Modal -->
+   <div id="addAddressModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px); z-index: 9999; align-items: center; justify-content: center;">
+    <div class="card" style="max-width: 500px; width: 90%; margin: 20px; position: relative;"><button id="closeAddAddressModal" style="position: absolute; top: 20px; right: 20px; background: #f3f4f6; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 20px; font-weight: 700; color: #6b7280; transition: all 0.3s ease;">×</button>
+     <h3 style="color: #1e40af; font-size: 24px; font-weight: 700; margin-bottom: 24px; text-align: center;">Save New Address</h3>
+     <div style="margin-bottom: 16px;"><label style="display: block; margin-bottom: 8px; color: #374151; font-weight: 600;">Address Label</label> <input type="text" id="addressLabel" class="input-field" placeholder="e.g., Home, Office, Parent's House">
+     </div>
+     <div style="margin-bottom: 24px;"><label style="display: block; margin-bottom: 8px; color: #374151; font-weight: 600;">Full Address</label> <textarea id="addressFull" class="input-field" placeholder="Enter complete address" style="min-height: 100px; resize: vertical;"></textarea>
+     </div><button id="saveAddressBtn" class="btn-primary" style="width: 100%; font-size: 16px;"> Save Address </button>
+    </div>
+   </div><!-- Saved Address Selection Modal -->
+   <div id="selectAddressModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px); z-index: 9999; align-items: center; justify-content: center;">
+    <div class="card" style="max-width: 500px; width: 90%; margin: 20px; position: relative; max-height: 80%; overflow-y: auto;"><button id="closeSelectAddressModal" style="position: absolute; top: 20px; right: 20px; background: #f3f4f6; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 20px; font-weight: 700; color: #6b7280; transition: all 0.3s ease; z-index: 1;">×</button>
+     <h3 style="color: #1e40af; font-size: 24px; font-weight: 700; margin-bottom: 24px; text-align: center;">Select Address</h3>
+     <div id="selectAddressList"></div>
+    </div>
+   </div><!-- Notifications Panel -->
+   <div id="notificationsPanel" style="display: none; position: fixed; top: 100px; right: 20px; width: 400px; max-height: 600px; overflow-y: auto; background: white; border-radius: 24px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); z-index: 10000; padding: 24px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+     <h3 style="color: #1e293b; font-size: 20px; font-weight: 700;">Notifications</h3><button id="closeNotificationsBtn" style="background: #f3f4f6; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 18px; color: #6b7280;">×</button>
+    </div>
+    <div id="notificationsList">
+     <div style="text-align: center; padding: 40px 0; color: #6b7280;">
+      <div style="font-size: 48px; margin-bottom: 12px;">
+       🔔
+      </div>
+      <p>No new notifications</p>
+     </div>
+    </div>
+   </div>
+  </div>
+  <script>
+    const defaultConfig = {
+      app_title: "EasyPick & Deliveries",
+      tagline: "Swift, Secure, Reliable",
+      hero_title: "Your Delivery Partner",
+      hero_subtitle: "Fast, Secure & Reliable",
+      pickup_label: "Pickup Location",
+      dropoff_label: "Drop-off Location",
+      confirm_button: "Confirm Booking"
+    };
+
+    let currentUser = null;
+    let currentBooking = null;
+    let allBookings = [];
+    let savedAddresses = [];
+    let notifications = [];
+    let currentAddressType = '';
+    let selectedRating = 0;
+    let currentRatingBooking = null;
+    let appliedPromo = null;
+    
+    const classPrices = {
+      economy: 10,
+      executive: 25,
+      vvip: 50
+    };
+
+    const promoCodes = {
+      'FIRST20': { type: 'percent', value: 20, minAmount: 0 },
+      'SAVE10': { type: 'fixed', value: 10, minAmount: 30 },
+      'FREESHIP': { type: 'free_economy', value: 0, minAmount: 0 },
+      'REFER15': { type: 'percent', value: 15, minAmount: 0 }
+    };
+
+    const drivers = [
+      { name: "John Smith", phone: "+1 (555) 123-4567" },
+      { name: "Sarah Johnson", phone: "+1 (555) 234-5678" },
+      { name: "Michael Chen", phone: "+1 (555) 345-6789" },
+      { name: "Emily Davis", phone: "+1 (555) 456-7890" },
+      { name: "David Wilson", phone: "+1 (555) 567-8901" }
+    ];
+
+    const dataHandler = {
+      onDataChanged(data) {
+        allBookings = data.filter(d => d.type === 'booking');
+        savedAddresses = data.filter(d => d.type === 'address');
+        updateDashboardStats();
+        updateTrackingSelect();
+        updateHistoryList();
+        updateTransactionList();
+        updateAddressList();
+        updateNotifications();
+      }
+    };
+
+    async function initApp() {
+      const initResult = await window.dataSdk.init(dataHandler);
+      if (!initResult.isOk) {
+        console.error("Failed to initialize data SDK");
+        return;
+      }
+
+      if (window.elementSdk) {
+        await window.elementSdk.init({
+          defaultConfig,
+          onConfigChange: async (config) => {
+            const appTitle = config.app_title || defaultConfig.app_title;
+            const tagline = config.tagline || defaultConfig.tagline;
+            const heroTitle = config.hero_title || defaultConfig.hero_title;
+            const heroSubtitle = config.hero_subtitle || defaultConfig.hero_subtitle;
+            const pickupLabel = config.pickup_label || defaultConfig.pickup_label;
+            const dropoffLabel = config.dropoff_label || defaultConfig.dropoff_label;
+            const confirmButton = config.confirm_button || defaultConfig.confirm_button;
+
+            document.getElementById('heroTitle').textContent = heroTitle;
+            document.getElementById('heroSubtitle').textContent = heroSubtitle;
+            document.getElementById('tagline').textContent = tagline;
+            document.getElementById('dashboardTitle').textContent = appTitle;
+            document.getElementById('pickupLabelText').textContent = pickupLabel;
+            document.getElementById('dropoffLabelText').textContent = dropoffLabel;
+            document.getElementById('confirmBookingBtn').textContent = confirmButton;
+          },
+          mapToCapabilities: (config) => ({
+            recolorables: [],
+            borderables: [],
+            fontEditable: undefined,
+            fontSizeable: undefined
+          }),
+          mapToEditPanelValues: (config) => new Map([
+            ["app_title", config.app_title || defaultConfig.app_title],
+            ["tagline", config.tagline || defaultConfig.tagline],
+            ["hero_title", config.hero_title || defaultConfig.hero_title],
+            ["hero_subtitle", config.hero_subtitle || defaultConfig.hero_subtitle],
+            ["pickup_label", config.pickup_label || defaultConfig.pickup_label],
+            ["dropoff_label", config.dropoff_label || defaultConfig.dropoff_label],
+            ["confirm_button", config.confirm_button || defaultConfig.confirm_button]
+          ])
+        });
+      }
+    }
+
+    document.getElementById('loginBtn').addEventListener('click', async () => {
+      const name = document.getElementById('loginName').value.trim();
+      const email = document.getElementById('loginEmail').value.trim();
+
+      if (!name || !email) {
+        showToast('Please enter both name and email', 'warning');
+        return;
+      }
+
+      currentUser = { name, email, wallet: 500 };
+      document.getElementById('welcomeMessage').textContent = `Welcome back, ${name}!`;
+      document.getElementById('walletBalance').textContent = `$${currentUser.wallet.toFixed(2)}`;
+      
+      showScreen('dashboardScreen');
+    });
+
+    document.getElementById('scheduleDelivery').addEventListener('change', (e) => {
+      document.getElementById('scheduleFields').style.display = e.target.checked ? 'block' : 'none';
+    });
+
+    document.querySelectorAll('.delivery-option').forEach(option => {
+      option.addEventListener('click', () => {
+        document.querySelectorAll('.delivery-option').forEach(o => o.classList.remove('selected'));
+        option.classList.add('selected');
+      });
+    });
+
+    document.querySelectorAll('.class-option').forEach(option => {
+      option.addEventListener('click', () => {
+        document.querySelectorAll('.class-option').forEach(o => o.classList.remove('selected'));
+        option.classList.add('selected');
+      });
+    });
+
+    document.getElementById('applyPromoBtn').addEventListener('click', () => {
+      const code = document.getElementById('promoCode').value.trim().toUpperCase();
+      const selectedClass = document.querySelector('.class-option.selected');
+      
+      if (!code) {
+        showToast('Please enter a promo code', 'warning');
+        return;
+      }
+
+      if (!selectedClass) {
+        showToast('Please select a service class first', 'warning');
+        return;
+      }
+
+      if (promoCodes[code]) {
+        const serviceClass = selectedClass.dataset.class;
+        const baseAmount = classPrices[serviceClass];
+        
+        const promo = promoCodes[code];
+        if (baseAmount < promo.minAmount) {
+          showToast(`This promo requires a minimum order of $${promo.minAmount}`, 'warning');
+          return;
+        }
+
+        appliedPromo = { code, ...promo };
+        document.getElementById('promoSuccess').style.display = 'block';
+        showToast(`Promo code "${code}" applied successfully!`, 'success');
+      } else {
+        showToast('Invalid promo code', 'error');
+        document.getElementById('promoSuccess').style.display = 'none';
+      }
+    });
+
+    document.getElementById('confirmBookingBtn').addEventListener('click', async () => {
+      const btn = document.getElementById('confirmBookingBtn');
+      const selectedType = document.querySelector('.delivery-option.selected');
+      const selectedClass = document.querySelector('.class-option.selected');
+      const pickupAddress = document.getElementById('pickupAddress').value.trim();
+      const pickupContact = document.getElementById('pickupContact').value.trim();
+      const dropoffAddress = document.getElementById('dropoffAddress').value.trim();
+      const dropoffContact = document.getElementById('dropoffContact').value.trim();
+
+      if (!selectedType || !selectedClass || !pickupAddress || !pickupContact || !dropoffAddress || !dropoffContact) {
+        showToast('Please fill in all required fields', 'warning');
+        return;
+      }
+
+      if (allBookings.length >= 999) {
+        showToast('Maximum limit of 999 bookings reached. Please contact support.', 'error');
+        return;
+      }
+
+      const deliveryType = selectedType.dataset.type;
+      const serviceClass = selectedClass.dataset.class;
+      let amount = classPrices[serviceClass];
+      let discountAmount = 0;
+
+      // Apply insurance
+      if (document.getElementById('addInsurance').checked) {
+        amount += 5;
+      }
+
+      // Apply promo code
+      if (appliedPromo) {
+        if (appliedPromo.type === 'percent') {
+          discountAmount = (amount * appliedPromo.value) / 100;
+        } else if (appliedPromo.type === 'fixed') {
+          discountAmount = appliedPromo.value;
+        } else if (appliedPromo.type === 'free_economy' && serviceClass === 'economy') {
+          discountAmount = amount;
+        }
+        amount = Math.max(0, amount - discountAmount);
+      }
+
+      if (currentUser.wallet < amount) {
+        showToast('Insufficient wallet balance. Please add funds.', 'error');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="loading-spinner"></span> Processing...';
+
+      const ticketNumber = 'EP' + Date.now().toString().slice(-8);
+      const randomDriver = drivers[Math.floor(Math.random() * drivers.length)];
+      
+      const booking = {
+        id: Date.now().toString(),
+        type: 'booking',
+        user_id: currentUser.email,
+        user_name: currentUser.name,
+        user_email: currentUser.email,
+        delivery_type: deliveryType,
+        service_class: serviceClass,
+        pickup_address: pickupAddress,
+        dropoff_address: dropoffAddress,
+        pickup_contact: pickupContact,
+        dropoff_contact: dropoffContact,
+        status: 'pending',
+        ticket_number: ticketNumber,
+        booking_date: new Date().toISOString(),
+        scheduled_date: document.getElementById('scheduleDelivery').checked ? document.getElementById('scheduledDate').value : '',
+        amount: amount,
+        discount_amount: discountAmount,
+        promo_code: appliedPromo ? appliedPromo.code : '',
+        rating: 0,
+        review: '',
+        driver_name: randomDriver.name,
+        driver_phone: randomDriver.phone,
+        delivery_photo: '',
+        package_weight: document.getElementById('packageWeight').value,
+        package_size: document.getElementById('packageSize').value,
+        insurance_added: document.getElementById('addInsurance').checked,
+        created_at: new Date().toISOString()
+      };
+
+      const result = await window.dataSdk.create(booking);
+
+      if (result.isOk) {
+        currentUser.wallet -= amount;
+        document.getElementById('walletBalance').textContent = `$${currentUser.wallet.toFixed(2)}`;
+        
+        currentBooking = booking;
+        showTicket(booking);
+        
+        // Reset form
+        document.getElementById('pickupAddress').value = '';
+        document.getElementById('pickupContact').value = '';
+        document.getElementById('dropoffAddress').value = '';
+        document.getElementById('dropoffContact').value = '';
+        document.getElementById('packageWeight').value = '';
+        document.getElementById('packageSize').value = '';
+        document.getElementById('addInsurance').checked = false;
+        document.getElementById('scheduleDelivery').checked = false;
+        document.getElementById('scheduleFields').style.display = 'none';
+        document.getElementById('promoCode').value = '';
+        document.getElementById('promoSuccess').style.display = 'none';
+        appliedPromo = null;
+        document.querySelectorAll('.delivery-option').forEach(o => o.classList.remove('selected'));
+        document.querySelectorAll('.class-option').forEach(o => o.classList.remove('selected'));
+
+        addNotification({
+          title: 'Booking Confirmed',
+          message: `Ticket #${ticketNumber} created successfully`,
+          type: 'success',
+          timestamp: new Date().toISOString()
+        });
+      } else {
+        showToast('Failed to create booking. Please try again.', 'error');
+      }
+
+      btn.disabled = false;
+      btn.textContent = window.elementSdk?.config?.confirm_button || defaultConfig.confirm_button;
+    });
+
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+
+        const tabName = tab.dataset.tab;
+        document.getElementById('bookingTab').style.display = tabName === 'booking' ? 'block' : 'none';
+        document.getElementById('trackingTab').style.display = tabName === 'tracking' ? 'block' : 'none';
+        document.getElementById('historyTab').style.display = tabName === 'history' ? 'block' : 'none';
+        document.getElementById('addressesTab').style.display = tabName === 'addresses' ? 'block' : 'none';
+        document.getElementById('promosTab').style.display = tabName === 'promos' ? 'block' : 'none';
+      });
+    });
+
+    document.getElementById('trackingSelect').addEventListener('change', (e) => {
+      const bookingId = e.target.value;
+      if (!bookingId) {
+        document.getElementById('trackingDetails').style.display = 'none';
+        return;
+      }
+
+      const booking = allBookings.find(b => b.id === bookingId);
+      if (booking) {
+        showTrackingDetails(booking);
+      }
+    });
+
+    document.getElementById('profileBtn').addEventListener('click', () => {
+      updateProfileScreen();
+      showScreen('profileScreen');
+    });
+
+    document.getElementById('backFromProfileBtn').addEventListener('click', () => {
+      showScreen('dashboardScreen');
+    });
+
+    document.getElementById('notificationsBtn').addEventListener('click', () => {
+      const panel = document.getElementById('notificationsPanel');
+      panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+      document.getElementById('notificationBadge').style.display = 'none';
+    });
+
+    document.getElementById('closeNotificationsBtn').addEventListener('click', () => {
+      document.getElementById('notificationsPanel').style.display = 'none';
+    });
+
+    // Add Funds Modal
+    let selectedFundAmount = 0;
+
+    document.getElementById('addFundsBtn').addEventListener('click', () => {
+      document.getElementById('addFundsModal').style.display = 'flex';
+      selectedFundAmount = 0;
+      document.getElementById('selectedAmount').textContent = '$0';
+      document.getElementById('customAmount').value = '';
+      document.querySelectorAll('.amount-option').forEach(btn => {
+        btn.style.borderColor = '#e5e7eb';
+        btn.style.background = 'white';
+      });
+      document.getElementById('confirmAddFundsBtn').disabled = true;
+    });
+
+    document.getElementById('closeAddFundsModal').addEventListener('click', () => {
+      document.getElementById('addFundsModal').style.display = 'none';
+    });
+
+    document.querySelectorAll('.amount-option').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.amount-option').forEach(b => {
+          b.style.borderColor = '#e5e7eb';
+          b.style.background = 'white';
+        });
+        btn.style.borderColor = '#3b82f6';
+        btn.style.background = '#eff6ff';
+        
+        selectedFundAmount = parseFloat(btn.dataset.amount);
+        document.getElementById('selectedAmount').textContent = '$' + selectedFundAmount;
+        document.getElementById('customAmount').value = '';
+        document.getElementById('confirmAddFundsBtn').disabled = false;
+      });
+    });
+
+    document.getElementById('customAmount').addEventListener('input', (e) => {
+      const value = parseFloat(e.target.value);
+      
+      document.querySelectorAll('.amount-option').forEach(b => {
+        b.style.borderColor = '#e5e7eb';
+        b.style.background = 'white';
+      });
+      
+      if (value && value >= 10) {
+        selectedFundAmount = value;
+        document.getElementById('selectedAmount').textContent = '$' + selectedFundAmount.toFixed(2);
+        document.getElementById('confirmAddFundsBtn').disabled = false;
+      } else {
+        selectedFundAmount = 0;
+        document.getElementById('selectedAmount').textContent = '$0';
+        document.getElementById('confirmAddFundsBtn').disabled = true;
+      }
+    });
+
+    document.getElementById('confirmAddFundsBtn').addEventListener('click', () => {
+      if (selectedFundAmount > 0 && currentUser) {
+        currentUser.wallet += selectedFundAmount;
+        document.getElementById('walletBalance').textContent = `$${currentUser.wallet.toFixed(2)}`;
+        document.getElementById('profileWallet').textContent = `$${currentUser.wallet.toFixed(2)}`;
+        
+        showToast(`Successfully added $${selectedFundAmount.toFixed(2)} to your wallet!`, 'success');
+        document.getElementById('addFundsModal').style.display = 'none';
+
+        addNotification({
+          title: 'Wallet Recharged',
+          message: `Added $${selectedFundAmount.toFixed(2)} to your wallet`,
+          type: 'success',
+          timestamp: new Date().toISOString()
+        });
+      }
+    });
+
+    // Rating Modal
+    document.querySelectorAll('.star').forEach(star => {
+      star.addEventListener('click', () => {
+        selectedRating = parseInt(star.dataset.rating);
+        updateStarDisplay();
+        document.getElementById('submitRatingBtn').disabled = false;
+      });
+
+      star.addEventListener('mouseenter', () => {
+        const rating = parseInt(star.dataset.rating);
+        document.querySelectorAll('.star').forEach((s, index) => {
+          if (index < rating) {
+            s.classList.add('filled');
+            s.classList.remove('empty');
+          } else {
+            s.classList.add('empty');
+            s.classList.remove('filled');
+          }
+        });
+      });
+    });
+
+    document.getElementById('starRating').addEventListener('mouseleave', () => {
+      updateStarDisplay();
+    });
+
+    function updateStarDisplay() {
+      document.querySelectorAll('.star').forEach((s, index) => {
+        if (index < selectedRating) {
+          s.classList.add('filled');
+          s.classList.remove('empty');
+        } else {
+          s.classList.add('empty');
+          s.classList.remove('filled');
+        }
+      });
+
+      const ratingTexts = ['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent'];
+      document.getElementById('ratingText').textContent = selectedRating > 0 ? ratingTexts[selectedRating] : 'Select your rating';
+    }
+
+    document.getElementById('closeRatingModal').addEventListener('click', () => {
+      document.getElementById('ratingModal').style.display = 'none';
+      resetRatingModal();
+    });
+
+    document.getElementById('submitRatingBtn').addEventListener('click', async () => {
+      if (!currentRatingBooking || selectedRating === 0) return;
+
+      const btn = document.getElementById('submitRatingBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="loading-spinner"></span> Submitting...';
+
+      const booking = allBookings.find(b => b.__backendId === currentRatingBooking);
+      if (booking) {
+        booking.rating = selectedRating;
+        booking.review = document.getElementById('reviewText').value.trim();
+
+        const result = await window.dataSdk.update(booking);
+        if (result.isOk) {
+          showToast('Thank you for your feedback!', 'success');
+          document.getElementById('ratingModal').style.display = 'none';
+          resetRatingModal();
+        } else {
+          showToast('Failed to submit rating', 'error');
+        }
+      }
+
+      btn.disabled = false;
+      btn.textContent = 'Submit Rating';
+    });
+
+    function resetRatingModal() {
+      selectedRating = 0;
+      currentRatingBooking = null;
+      document.getElementById('reviewText').value = '';
+      updateStarDisplay();
+      document.getElementById('submitRatingBtn').disabled = true;
+    }
+
+    function openRatingModal(backendId) {
+      const booking = allBookings.find(b => b.__backendId === backendId);
+      if (!booking) return;
+
+      currentRatingBooking = backendId;
+      document.getElementById('ratingTicketNumber').textContent = booking.ticket_number;
+      selectedRating = booking.rating || 0;
+      document.getElementById('reviewText').value = booking.review || '';
+      updateStarDisplay();
+      document.getElementById('submitRatingBtn').disabled = selectedRating === 0;
+      document.getElementById('ratingModal').style.display = 'flex';
+    }
+
+    // Address Management
+    document.getElementById('addAddressBtn').addEventListener('click', () => {
+      document.getElementById('addAddressModal').style.display = 'flex';
+    });
+
+    document.getElementById('closeAddAddressModal').addEventListener('click', () => {
+      document.getElementById('addAddressModal').style.display = 'none';
+      document.getElementById('addressLabel').value = '';
+      document.getElementById('addressFull').value = '';
+    });
+
+    document.getElementById('saveAddressBtn').addEventListener('click', async () => {
+      const label = document.getElementById('addressLabel').value.trim();
+      const fullAddress = document.getElementById('addressFull').value.trim();
+
+      if (!label || !fullAddress) {
+        showToast('Please fill in all fields', 'warning');
+        return;
+      }
+
+      if (savedAddresses.length >= 999) {
+        showToast('Maximum address limit reached', 'error');
+        return;
+      }
+
+      const btn = document.getElementById('saveAddressBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="loading-spinner"></span> Saving...';
+
+      const address = {
+        id: Date.now().toString(),
+        type: 'address',
+        user_id: currentUser.email,
+        user_name: currentUser.name,
+        user_email: currentUser.email,
+        delivery_type: '',
+        service_class: '',
+        pickup_address: label,
+        dropoff_address: fullAddress,
+        pickup_contact: '',
+        dropoff_contact: '',
+        status: '',
+        ticket_number: '',
+        booking_date: '',
+        scheduled_date: '',
+        amount: 0,
+        discount_amount: 0,
+        promo_code: '',
+        rating: 0,
+        review: '',
+        driver_name: '',
+        driver_phone: '',
+        delivery_photo: '',
+        package_weight: '',
+        package_size: '',
+        insurance_added: false,
+        created_at: new Date().toISOString()
+      };
+
+      const result = await window.dataSdk.create(address);
+
+      if (result.isOk) {
+        showToast('Address saved successfully', 'success');
+        document.getElementById('addAddressModal').style.display = 'none';
+        document.getElementById('addressLabel').value = '';
+        document.getElementById('addressFull').value = '';
+      } else {
+        showToast('Failed to save address', 'error');
+      }
+
+      btn.disabled = false;
+      btn.textContent = 'Save Address';
+    });
+
+    document.getElementById('useSavedPickupBtn').addEventListener('click', () => {
+      if (savedAddresses.length === 0) {
+        showToast('No saved addresses. Add one first!', 'info');
+        return;
+      }
+      currentAddressType = 'pickup';
+      showAddressSelector();
+    });
+
+    document.getElementById('useSavedDropoffBtn').addEventListener('click', () => {
+      if (savedAddresses.length === 0) {
+        showToast('No saved addresses. Add one first!', 'info');
+        return;
+      }
+      currentAddressType = 'dropoff';
+      showAddressSelector();
+    });
+
+    document.getElementById('closeSelectAddressModal').addEventListener('click', () => {
+      document.getElementById('selectAddressModal').style.display = 'none';
+    });
+
+    function showAddressSelector() {
+      const list = document.getElementById('selectAddressList');
+      list.innerHTML = savedAddresses.map(addr => `
+        <div class="saved-address-item" onclick="selectAddress('${addr.__backendId}')">
+          <div style="font-weight: 700; color: #1e293b; margin-bottom: 4px;">📌 ${addr.pickup_address}</div>
+          <div style="color: #64748b; font-size: 14px;">${addr.dropoff_address}</div>
+        </div>
+      `).join('');
+      document.getElementById('selectAddressModal').style.display = 'flex';
+    }
+
+    function selectAddress(backendId) {
+      const address = savedAddresses.find(a => a.__backendId === backendId);
+      if (!address) return;
+
+      if (currentAddressType === 'pickup') {
+        document.getElementById('pickupAddress').value = address.dropoff_address;
+      } else {
+        document.getElementById('dropoffAddress').value = address.dropoff_address;
+      }
+
+      document.getElementById('selectAddressModal').style.display = 'none';
+      showToast('Address selected', 'success');
+    }
+
+    async function deleteAddress(backendId) {
+      const address = savedAddresses.find(a => a.__backendId === backendId);
+      if (!address) return;
+
+      const result = await window.dataSdk.delete(address);
+      if (result.isOk) {
+        showToast('Address deleted', 'success');
+      } else {
+        showToast('Failed to delete address', 'error');
+      }
+    }
+
+    document.getElementById('backToDashboardBtn').addEventListener('click', () => {
+      showScreen('dashboardScreen');
+    });
+
+    document.getElementById('trackNowBtn').addEventListener('click', () => {
+      showScreen('dashboardScreen');
+      document.querySelector('[data-tab="tracking"]').click();
+      if (currentBooking) {
+        document.getElementById('trackingSelect').value = currentBooking.id;
+        showTrackingDetails(currentBooking);
+      }
+    });
+
+    function showScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(screenId).classList.add('active');
+    }
+
+    function showTicket(booking) {
+      document.getElementById('ticketNumber').textContent = booking.ticket_number;
+      document.getElementById('ticketType').textContent = booking.delivery_type.toUpperCase();
+      document.getElementById('ticketClass').textContent = booking.service_class.toUpperCase();
+      document.getElementById('ticketPickup').textContent = booking.pickup_address;
+      document.getElementById('ticketPickupContact').textContent = booking.pickup_contact;
+      document.getElementById('ticketDropoff').textContent = booking.dropoff_address;
+      document.getElementById('ticketDropoffContact').textContent = booking.dropoff_contact;
+      document.getElementById('ticketDate').textContent = new Date(booking.booking_date).toLocaleDateString();
+      document.getElementById('ticketAmount').textContent = `$${booking.amount.toFixed(2)}`;
+      
+      if (booking.discount_amount > 0) {
+        document.getElementById('ticketDiscount').style.display = 'block';
+        document.getElementById('ticketDiscountAmount').textContent = booking.discount_amount.toFixed(2);
+      } else {
+        document.getElementById('ticketDiscount').style.display = 'none';
+      }
+      
+      showScreen('ticketScreen');
+    }
+
+    function updateDashboardStats() {
+      if (!currentUser) return;
+
+      const userBookings = allBookings.filter(b => b.user_email === currentUser.email);
+      const total = userBookings.length;
+
+      const trackingContent = document.getElementById('trackingContent');
+      const trackingEmpty = document.getElementById('trackingEmpty');
+      
+      if (total > 0) {
+        trackingContent.style.display = 'block';
+        trackingEmpty.style.display = 'none';
+      } else {
+        trackingContent.style.display = 'none';
+        trackingEmpty.style.display = 'block';
+      }
+    }
+
+    function updateTrackingSelect() {
+      if (!currentUser) return;
+
+      const select = document.getElementById('trackingSelect');
+      const userBookings = allBookings.filter(b => b.user_email === currentUser.email);
+      
+      select.innerHTML = '<option value="">Choose a booking...</option>';
+      userBookings.forEach(booking => {
+        const option = document.createElement('option');
+        option.value = booking.id;
+        option.textContent = `Ticket #${booking.ticket_number} - ${booking.status.toUpperCase()}`;
+        select.appendChild(option);
+      });
+    }
+
+    function showTrackingDetails(booking) {
+      document.getElementById('trackingDetails').style.display = 'block';
+      document.getElementById('trackTicketNumber').textContent = booking.ticket_number;
+      document.getElementById('trackPickup').textContent = booking.pickup_address;
+      document.getElementById('trackDropoff').textContent = booking.dropoff_address;
+      
+      const statusBadge = document.getElementById('trackStatus');
+      statusBadge.textContent = booking.status.toUpperCase();
+      statusBadge.className = 'status-badge status-' + booking.status;
+
+      if (booking.driver_name) {
+        document.getElementById('trackDriverInfo').style.display = 'block';
+        document.getElementById('trackDriverName').textContent = booking.driver_name;
+        document.getElementById('trackDriverPhone').textContent = booking.driver_phone;
+      } else {
+        document.getElementById('trackDriverInfo').style.display = 'none';
+      }
+    }
+
+    function updateHistoryList() {
+      if (!currentUser) return;
+
+      const userBookings = allBookings.filter(b => b.user_email === currentUser.email);
+      const historyList = document.getElementById('historyList');
+      const historyEmpty = document.getElementById('historyEmpty');
+
+      if (userBookings.length === 0) {
+        historyList.innerHTML = '';
+        historyEmpty.style.display = 'block';
+        return;
+      }
+
+      historyEmpty.style.display = 'none';
+      historyList.innerHTML = userBookings.map(booking => `
+        <div class="transaction-item">
+          <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+            <div style="flex: 1;">
+              <div style="font-weight: 700; color: #374151; margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
+                Ticket #${booking.ticket_number}
+                ${booking.promo_code ? `<span class="promo-badge">${booking.promo_code}</span>` : ''}
+              </div>
+              <div style="color: #6b7280; font-size: 14px;">
+                ${booking.delivery_type.toUpperCase()} • ${booking.service_class.toUpperCase()}
+                ${booking.insurance_added ? ' • 🛡️ Insured' : ''}
+              </div>
+              ${booking.driver_name ? `<div style="color: #374151; font-size: 13px; margin-top: 4px;">🚗 Driver: ${booking.driver_name}</div>` : ''}
+            </div>
+            <span class="status-badge status-${booking.status}">${booking.status.toUpperCase()}</span>
+          </div>
+          <div style="color: #6b7280; font-size: 14px; margin-bottom: 12px;">
+            <div>📍 ${booking.pickup_address} → 🎯 ${booking.dropoff_address}</div>
+            ${booking.scheduled_date ? `<div style="margin-top: 4px;">📅 Scheduled: ${new Date(booking.scheduled_date).toLocaleString()}</div>` : ''}
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+            <span style="color: #6b7280; font-size: 12px;">${new Date(booking.booking_date).toLocaleDateString()}</span>
+            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+              <span style="color: #10b981; font-weight: 600;">$${booking.amount.toFixed(2)}</span>
+              ${booking.status === 'pending' ? `
+                <button onclick="updateBookingStatus('${booking.__backendId}', 'transit')" style="padding: 6px 12px; background: #dbeafe; color: #1e40af; border: none; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer;">Start Transit</button>
+                <button onclick="confirmDeleteBooking('${booking.__backendId}')" style="padding: 6px 12px; background: #fee2e2; color: #991b1b; border: none; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer;">Cancel</button>
+              ` : booking.status === 'transit' ? `
+                <button onclick="updateBookingStatus('${booking.__backendId}', 'delivered')" style="padding: 6px 12px; background: #d1fae5; color: #065f46; border: none; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer;">Mark Delivered</button>
+              ` : booking.status === 'delivered' && !booking.rating ? `
+                <button onclick="openRatingModal('${booking.__backendId}')" style="padding: 6px 12px; background: #fef3c7; color: #92400e; border: none; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer;">⭐ Rate</button>
+              ` : booking.status === 'delivered' && booking.rating ? `
+                <span style="color: #f59e0b; font-size: 14px;">${'⭐'.repeat(booking.rating)}</span>
+              ` : ''}
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function updateAddressList() {
+      if (!currentUser) return;
+
+      const userAddresses = savedAddresses.filter(a => a.user_email === currentUser.email);
+      const addressList = document.getElementById('addressList');
+      const addressEmpty = document.getElementById('addressEmpty');
+
+      if (userAddresses.length === 0) {
+        addressList.innerHTML = '';
+        addressEmpty.style.display = 'block';
+        return;
+      }
+
+      addressEmpty.style.display = 'none';
+      addressList.innerHTML = userAddresses.map(addr => `
+        <div class="saved-address-item" style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <div style="font-weight: 700; color: #1e293b; margin-bottom: 4px;">📌 ${addr.pickup_address}</div>
+            <div style="color: #64748b; font-size: 14px;">${addr.dropoff_address}</div>
+          </div>
+          <button onclick="deleteAddress('${addr.__backendId}')" style="background: #fee2e2; color: #991b1b; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 12px;">Delete</button>
+        </div>
+      `).join('');
+    }
+
+    function updateProfileScreen() {
+      if (!currentUser) return;
+
+      document.getElementById('profileName').textContent = currentUser.name;
+      document.getElementById('profileEmail').textContent = currentUser.email;
+      document.getElementById('profileWallet').textContent = `$${currentUser.wallet.toFixed(2)}`;
+
+      const userBookings = allBookings.filter(b => b.user_email === currentUser.email);
+      document.getElementById('totalBookings').textContent = userBookings.length;
+      document.getElementById('activeBookings').textContent = userBookings.filter(b => b.status !== 'delivered').length;
+      document.getElementById('completedBookings').textContent = userBookings.filter(b => b.status === 'delivered').length;
+    }
+
+    function updateTransactionList() {
+      if (!currentUser) return;
+
+      const userBookings = allBookings.filter(b => b.user_email === currentUser.email);
+      const transactionList = document.getElementById('transactionList');
+      const transactionEmpty = document.getElementById('transactionEmpty');
+
+      if (userBookings.length === 0) {
+        transactionList.innerHTML = '';
+        transactionEmpty.style.display = 'block';
+        return;
+      }
+
+      transactionEmpty.style.display = 'none';
+      transactionList.innerHTML = userBookings.map(booking => `
+        <div class="transaction-item">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <div style="font-weight: 600; color: #374151;">Ticket #${booking.ticket_number}</div>
+              <div style="color: #6b7280; font-size: 14px;">${new Date(booking.booking_date).toLocaleDateString()} • ${new Date(booking.booking_date).toLocaleTimeString()}</div>
+            </div>
+            <div style="text-align: right;">
+              <div style="color: #ef4444; font-weight: 700;">-$${booking.amount.toFixed(2)}</div>
+              ${booking.discount_amount > 0 ? `<div style="color: #10b981; font-size: 12px;">Saved $${booking.discount_amount.toFixed(2)}</div>` : ''}
+              <div style="color: #6b7280; font-size: 12px;">Delivery Fee</div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function updateNotifications() {
+      const notificationsList = document.getElementById('notificationsList');
+      
+      if (notifications.length === 0) {
+        notificationsList.innerHTML = `
+          <div style="text-align: center; padding: 40px 0; color: #6b7280;">
+            <div style="font-size: 48px; margin-bottom: 12px;">🔔</div>
+            <p>No new notifications</p>
+          </div>
+        `;
+        return;
+      }
+
+      notificationsList.innerHTML = notifications.slice().reverse().map(notif => `
+        <div style="padding: 16px; background: ${notif.type === 'success' ? '#d1fae5' : '#dbeafe'}; border-radius: 12px; margin-bottom: 12px; border-left: 4px solid ${notif.type === 'success' ? '#10b981' : '#3b82f6'};">
+          <div style="font-weight: 700; color: #1e293b; margin-bottom: 4px;">${notif.title}</div>
+          <div style="color: #64748b; font-size: 14px; margin-bottom: 4px;">${notif.message}</div>
+          <div style="color: #94a3b8; font-size: 12px;">${new Date(notif.timestamp).toLocaleString()}</div>
+        </div>
+      `).join('');
+    }
+
+    function addNotification(notif) {
+      notifications.push(notif);
+      const badge = document.getElementById('notificationBadge');
+      badge.style.display = 'flex';
+      badge.textContent = notifications.length;
+      updateNotifications();
+    }
+
+    async function updateBookingStatus(backendId, newStatus) {
+      const booking = allBookings.find(b => b.__backendId === backendId);
+      if (!booking) return;
+
+      booking.status = newStatus;
+      const result = await window.dataSdk.update(booking);
+
+      if (result.isOk) {
+        showToast(`Booking status updated to ${newStatus.toUpperCase()}`, 'success');
+        addNotification({
+          title: 'Status Update',
+          message: `Ticket #${booking.ticket_number} is now ${newStatus.toUpperCase()}`,
+          type: 'info',
+          timestamp: new Date().toISOString()
+        });
+      } else {
+        showToast('Failed to update booking status', 'error');
+      }
+    }
+
+    let bookingToDelete = null;
+
+    function confirmDeleteBooking(backendId) {
+      bookingToDelete = backendId;
+      const booking = allBookings.find(b => b.__backendId === backendId);
+      
+      if (!booking) return;
+
+      const confirmDiv = document.createElement('div');
+      confirmDiv.id = 'deleteConfirmModal';
+      confirmDiv.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px); z-index: 9999; display: flex; align-items: center; justify-content: center;';
+      
+      confirmDiv.innerHTML = `
+        <div class="card" style="max-width: 450px; width: 90%; margin: 20px; text-align: center;">
+          <div style="font-size: 56px; margin-bottom: 16px;">⚠️</div>
+          <h3 style="color: #991b1b; font-size: 24px; font-weight: 700; margin-bottom: 12px;">Cancel Booking?</h3>
+          <p style="color: #6b7280; margin-bottom: 24px;">Are you sure you want to cancel Ticket #${booking.ticket_number}? You will receive a full refund.</p>
+          <div style="display: flex; gap: 12px;">
+            <button onclick="closeDeleteModal()" class="btn-secondary" style="flex: 1;">Keep Booking</button>
+            <button onclick="executeDeleteBooking()" style="flex: 1; background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); color: white; padding: 16px 32px; border-radius: 16px; border: none; font-weight: 700; font-size: 15px; cursor: pointer; box-shadow: 0 10px 30px rgba(220, 38, 38, 0.3);">Cancel Booking</button>
+          </div>
+        </div>
+      `;
+      
+      document.body.appendChild(confirmDiv);
+    }
+
+    function closeDeleteModal() {
+      const modal = document.getElementById('deleteConfirmModal');
+      if (modal) modal.remove();
+      bookingToDelete = null;
+    }
+
+    async function executeDeleteBooking() {
+      if (!bookingToDelete) return;
+
+      const booking = allBookings.find(b => b.__backendId === bookingToDelete);
+      if (!booking) return;
+
+      const result = await window.dataSdk.delete(booking);
+
+      if (result.isOk) {
+        if (currentUser) {
+          currentUser.wallet += booking.amount;
+          document.getElementById('walletBalance').textContent = `$${currentUser.wallet.toFixed(2)}`;
+        }
+        showToast(`Booking cancelled. $${booking.amount.toFixed(2)} refunded to your wallet.`, 'success');
+        addNotification({
+          title: 'Booking Cancelled',
+          message: `Ticket #${booking.ticket_number} cancelled. Refund processed.`,
+          type: 'info',
+          timestamp: new Date().toISOString()
+        });
+      } else {
+        showToast('Failed to cancel booking', 'error');
+      }
+
+      closeDeleteModal();
+    }
+
+    function copyPromo(code) {
+      navigator.clipboard.writeText(code).then(() => {
+        showToast(`Promo code "${code}" copied to clipboard!`, 'success');
+      });
+    }
+
+    window.updateBookingStatus = updateBookingStatus;
+    window.confirmDeleteBooking = confirmDeleteBooking;
+    window.closeDeleteModal = closeDeleteModal;
+    window.executeDeleteBooking = executeDeleteBooking;
+    window.openRatingModal = openRatingModal;
+    window.selectAddress = selectAddress;
+    window.deleteAddress = deleteAddress;
+    window.copyPromo = copyPromo;
+
+    function showToast(message, type = 'info') {
+      const colors = {
+        success: '#10b981',
+        error: '#ef4444',
+        warning: '#f59e0b',
+        info: '#3b82f6'
+      };
+
+      const messageDiv = document.createElement('div');
+      messageDiv.style.cssText = `position: fixed; top: 20px; right: 20px; background: white; color: #374151; padding: 16px 24px; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); z-index: 10001; font-weight: 600; border-left: 4px solid ${colors[type]}; max-width: 400px;`;
+      messageDiv.textContent = message;
+      document.body.appendChild(messageDiv);
+      
+      setTimeout(() => {
+        messageDiv.style.opacity = '0';
+        messageDiv.style.transition = 'opacity 0.3s ease';
+        setTimeout(() => messageDiv.remove(), 300);
+      }, 3000);
+    }
+
+    initApp();
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a0a4a599195b92d',t:'MTc2MzQ5ODUwNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+  </html>
